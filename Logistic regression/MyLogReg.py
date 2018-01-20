@@ -1,16 +1,15 @@
 import time
 import numpy as np
 from scipy.special import expit
-from numpy import logaddexp
-from sklearn.metrics import log_loss
 from scipy.spatial.distance import euclidean
 from numpy import linalg as LA
 from sklearn.base import BaseEstimator
 
 
-class LogRegBonus(BaseEstimator):
+class LogReg(BaseEstimator):
     def __init__(self, lambda_1=0.001, lambda_2=0, gd_type='full',
                  tolerance=1e-6, max_iter=1000, w0=None, alpha=1e-3, hist=True):
+        
         """
         lambda_1: L1 regularization param
         lambda_2: L2 regularization param
@@ -20,6 +19,7 @@ class LogRegBonus(BaseEstimator):
         w0: np.array of shape (d) - init weights
         alpha: learning rate
         """
+        
         self.lambda_1 = lambda_1
         self.lambda_2 = lambda_2
         self.gd_type = gd_type
@@ -33,6 +33,7 @@ class LogRegBonus(BaseEstimator):
         self.hist = hist
 
     def fit(self, X, y):
+        
         """
         X: np.array of shape (l, d)
         y: np.array of shape (l)
@@ -82,6 +83,7 @@ class LogRegBonus(BaseEstimator):
         return self
 
     def predict_proba(self, X):
+        
         """
         X: np.array of shape (l, d)
         ---
@@ -89,6 +91,7 @@ class LogRegBonus(BaseEstimator):
         first column has probabilities of -1
         second column has probabilities of +1
         """
+        
         if self.w is None:
             raise Exception('Not trained yet')
 
@@ -101,16 +104,16 @@ class LogRegBonus(BaseEstimator):
         return pred
 
     def calc_gradient(self, X, y):
+        
         """
         X: np.array of shape (l, d) (l can be equal to 1 if stochastic)
         y: np.array of shape (l)
         ---
         output: np.array of shape (d)
         """
-        # gradient = np.zeros(X[0].size)
         
         L1 = self.lambda_1 * np.sign(self.w)
-        L1[abs(self.w) < self.tolerance] = 0 # зануляем близкие к нулю значения весов
+        L1[abs(self.w) < self.tolerance] = 0
         L2 = self.lambda_2 * self.w
         
         regularization = L1 + L2
@@ -120,10 +123,8 @@ class LogRegBonus(BaseEstimator):
         else:
             return np.dot((-y * expit(-y * np.dot(X, self.w))), X) / len(X) + regularization
 
-        # gradient += regularization
-        # return gradient
-
     def calc_loss(self, X, y):
+        
         """
         X: np.array of shape (l, d)
         y: np.array of shape (l)
